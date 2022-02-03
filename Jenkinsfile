@@ -15,5 +15,16 @@ pipeline {
             }
 			
         }
+		stage('Build Docker Image') {
+		    when {
+			   branch 'master'
+			   }
+            steps {
+			   script {
+			     app = docker.build("dockerpandian/ddeploy-9am")
+				 app.inside {
+				   sh 'echo $(curl localhost:8080)'
+				  }
+        }	
     }
 }
