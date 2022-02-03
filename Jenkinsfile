@@ -6,12 +6,14 @@ pipeline {
             steps {
                 git 'https://github.com/awspandian/dd-feb.git'
             }
-		stage('Build') {
+			
+        }
+		        stage('Build') {
             steps {
                 sh 'mvn clean'
 				sh 'mvn install'
-            }	
+            }
+			
         }
     }
-}
 }
