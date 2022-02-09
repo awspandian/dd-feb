@@ -39,5 +39,27 @@ pipeline {
 				 }
 			   }
 		}
+		stage('Deploy to Producation') { 
+		   when {
+		     branch 'master'
+		   }
+		   steps {
+		    input 'Deploy to Producation?'
+			milestone(1)
+			withCredentials([usernamePassword(credentialsId: 'webserver', usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]) {
+			script {
+			  sh "sshpass -p $USERPASS' -v ssh -o StrictHostkeyChecking=no $USERNAME@$prod_ip \"docker pull dockerpandian/ddeploy-9am:${env.BUILD_NUMBER}\""
+			  try {
+			    sh "sshpass -p $USERPASS' -v ssh -o StrictHostkeyChecking=no $USERNAME@$prod_ip \"docker stop azcs\""
+				sh "sshpass -p $USERPASS' -v ssh -o StrictHostkeyChecking=no $USERNAME@$prod_ip \"docker rm azcs\""
+			  } catch (err) {
+			      echo: 'caught error: $err'
+			  }
+			  sh "sshpass -p $USERPASS' -v ssh -o StrictHostkeyChecking=no $USERNAME@$prod_ip \"docker ru --restart always --name azcs -p 8080:8080 -d dockerpandian/ddeploy-9am:${env.BUILD_NUMBER}\""
+			}
+			}
+		   }
+		}		
+		
 		}
 }
